@@ -7,7 +7,7 @@ import java.util.Scanner;
 public class Cliente {
 
     private final int PUERTO = 1234;
-    private final String HOST = "192.168.100.1";
+    private final String HOST = "192.168.100.63";
     private Socket cs;
     private DataOutputStream salidaServidor; // Flujo para enviar al servidor
     private DataInputStream entradaServidor; // Flujo para recibir del servidor
