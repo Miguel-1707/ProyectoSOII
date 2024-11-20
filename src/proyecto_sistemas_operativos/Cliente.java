@@ -1,51 +1,58 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package proyecto_sistemas_operativos;
 
-import java.util.*;
 import java.io.*;
 import java.net.*;
+import java.util.Scanner;
 
-public class Cliente{
+public class Cliente {
 
-    private final int PUERTO = 1234; //Puerto para la conexión
-    private final String HOST = "localhost"; //Host para la conexión
-    private String mensajeServidor; //Mensajes entrantes (recibidos) en el servidor
-    private Socket cs; //Socket del cliente
-    private DataOutputStream salidaServidor; //Flujo de datos de salida
-    
-    public Cliente() throws IOException{
-       cs = new Socket(HOST, PUERTO); //Socket para el cliente en localhost en puerto 1234
-       System.out.println("Iniciando cliente\n");
-     } 
+    private final int PUERTO = 1234;
+    private final String HOST = "192.168.100.63";
+    private Socket cs;
+    private DataOutputStream salidaServidor; // Flujo para enviar al servidor
+    private DataInputStream entradaServidor; // Flujo para recibir del servidor
 
-    public void startClient(){ //Método para iniciar el cliente
-        Scanner teclado=new Scanner(System.in);
-        String msg=null;
-        try{            
-            //Flujo de datos hacia el servidor
-            salidaServidor = new DataOutputStream(cs.getOutputStream());              
-             do{                
-                 msg=teclado.nextLine();
-                 salidaServidor.writeUTF( msg+"\n");                
-               }while(msg.compareTo("exit")!=0);                       
+    public Cliente() throws IOException {
+        cs = new Socket(HOST, PUERTO);
+        System.out.println("Iniciando cliente\nEspere por favor...");
+    }
 
-            cs.close();//Fin de la conexión
-        }
-        catch (Exception e){
-            System.out.println(e.getMessage());
+    public void startClient() {
+        try {
+            salidaServidor = new DataOutputStream(cs.getOutputStream());
+            entradaServidor = new DataInputStream(cs.getInputStream());
+            Scanner teclado = new Scanner(System.in); // Para escribir hacia el servidor
+
+            String mensajeEnviado, mensajeRecibido;
+
+            do {
+                // Enviar al servidor
+                System.out.println("Escriba el mensaje al servidor:");
+                mensajeEnviado = teclado.nextLine();
+                salidaServidor.writeUTF(mensajeEnviado);
+
+                // Leer del servidor
+                mensajeRecibido = entradaServidor.readUTF();
+                System.out.println("Mensaje del servidor: " + mensajeRecibido);
+            } while (!mensajeEnviado.equals("exit"));
+
+            System.out.println("Conexión cerrada");
+            cs.close(); // Cerrar la conexión
+            teclado.close();
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
         }
     }
 
- public static void main(String[] args) { //throws IOException
-     Cliente cli=null;
-       try{ 
-          cli = new Cliente(); //Se crea el cliente e intenta hacer la conexion
-        }catch(IOException e){
-            System.out.println("\nError en la conexion, Servidor ausente  ");}
-        if( cli!=null)
-          cli.startClient(); //el cliente envia mensajes al servidor
-    }  
-}    
+    public static void main(String[] args) {
+        Cliente cli = null;
+        try {
+            cli = new Cliente();
+        } catch (IOException e) {
+            System.out.println("\nError en la conexión, servidor ausente");
+        }
+        if (cli != null) {
+            cli.startClient();
+        }
+    }
+}
